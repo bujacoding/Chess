@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "Chess.h"
+#include "colors.h"
 
 // #define A 97
 const int A = 97;
@@ -41,9 +42,9 @@ int canMove(struct Vector v, int dx, int dy)
 int getBackgroundColor(int isDark, int isBorder) 
 {   
     if (isBorder) {
-        return 41;
+        return kbRed;
     }
-    return isDark ? 40 : 47;
+    return isDark ? kbBlack : kbWhite;
 }
 
 void initialize() {
@@ -59,7 +60,7 @@ void initialize() {
 
         bgColMap[i] = getBackgroundColor(isDark, isBorder);
 
-        colorMap[i] = 35;        
+        colorMap[i] = kfMagenta;        
 
         pixelList[i] = " ";
     }
@@ -148,7 +149,7 @@ int gameLoop(){
                 int i = 1;
                 for (;i<moveDistance; i++){
                     int index = indexOf(pointer.x + (int)((float)i * inclination_x), pointer.y + (int)((float)i * inclination_y));
-                    bgColMap[index] = 42;
+                    // bgColMap[index] = 42;
                     if (strcmp(pixelList[index], " ")){
                         break;
                     }
