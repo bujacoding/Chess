@@ -32,4 +32,3 @@ const int kbBlue         = 44;
 const int kbMagenta      = 45;
 const int kbCyan         = 46;
 const int kbWhite        = 47;
-

@@ -20,11 +20,70 @@ char* pixelList[width * height];
 int bgColMap[width * height];
 int colorMap[width * height];
 
+#define null 0
+
 struct Vector
 {
   int x = 0;
   int y = 0;
 };
+
+typedef struct{
+    int side; // 0(white) or 1(black)
+    int type; // Pawn, Bishop, kNight, Rook, Queen, King
+    const char* emoji;
+} Unit;
+
+int kWhite = 0;
+int kBlack = 1;
+
+int kPawn = 1;
+int kBishop = 2;
+int kKnight = 3;
+int kRook = 4;
+int kQueen = 5;
+int kKing = 6;
+
+// set(1, 1, "♖"); 
+// set(1, 2, "♘"); set(1, 3, "♗"); set(1, 4, "♕"); set(1, 5, "♔"); set(1, 6, "♗"); set(1, 7, "♘"); set(1, 8, "♖");
+// set(2, 1, "♙"); set(2, 2, "♙"); set(2, 3, "♙"); set(2, 4, "♙"); set(2, 5, "♙"); set(2, 6, "♙"); set(2, 7, "♙"); set(2, 8, "♙");
+    // set(8, 1, "♜"); set(8, 2, "♞"); set(8, 3, "♝"); set(8, 4, "♛"); set(8, 5, "♚"); set(8, 6, "♝"); set(8, 7, "♞"); set(8, 8, "♜");
+    // set(7, 1, "♟"); set(7, 2, "♟"); set(7, 3, "♟"); set(7, 4, "♟"); set(7, 5, "♟"); set(7, 6, "♟"); set(7, 7, "♟"); set(7, 8, "♟");
+
+
+Unit whitePawn = {kWhite, kPawn, "♟"};
+Unit whiteBishop = {kWhite, kBishop, "♝"};
+Unit whiteKnight = {kWhite, kKnight, "♞"};
+Unit whiteRook = {kWhite, kRook, "♜"};
+Unit whiteQueen = {kWhite, kQueen, "♛"};
+Unit whiteKing = {kWhite, kKing, "♚"};
+
+Unit blackPawn = {kBlack, kPawn, "♙"};
+Unit blackBishop = {kBlack, kBishop, "♗"};
+Unit blackKnight = {kBlack, kKnight, "♘"};
+Unit blackRook = {kBlack, kRook, "♖"};
+Unit blackQueen = {kBlack, kQueen, "♕"};
+Unit blackKing = {kBlack, kKing, "♔"};
+
+Unit* map[8*8] = {
+&whiteRook, &whitePawn, null, null, null, null, &blackPawn, &blackRook,
+&whiteKnight, &whitePawn, null, null, null, null, &blackPawn, &blackKnight,
+&whiteBishop, &whitePawn, null, null, null, null, &blackPawn, &blackBishop,
+&whiteQueen, &whitePawn, null, null, null, null, &blackPawn, &blackQueen,
+&whiteKing, &whitePawn, null, null, null, null, &blackPawn, &blackKing,
+&whiteBishop, &whitePawn, null, null, null, null, &blackPawn, &blackBishop,
+&whiteKnight, &whitePawn, null, null, null, null, &blackPawn, &blackKnight,
+&whiteRook, &whitePawn, null, null, null, null, &blackPawn, &blackRook
+};
+
+// void render() {
+//     for (int y=0; y<height; y++) {
+//         for (int x=0; x<width; x++) {
+//             map
+//         }
+//     }
+// }
+
 int IsGame = 1;
 int delay = 16;
 struct Vector pointer;
@@ -81,12 +140,12 @@ void buildUnits()
 }
 
 int gameLoop(){
-    int underCol = 40;
+    int underCol = kbBlack;
     char* underUni = "♖";
     char* catchUni = 0;
-    int pointerCol = 42;
+    int pointerCol = kbGreen;
     int catchCol = 0;
-    int underTCol = 36;
+    int underTCol = kfCyan;
     int CatchUniTeam = 0;
 
     do
@@ -149,7 +208,7 @@ int gameLoop(){
                 int i = 1;
                 for (;i<moveDistance; i++){
                     int index = indexOf(pointer.x + (int)((float)i * inclination_x), pointer.y + (int)((float)i * inclination_y));
-                    // bgColMap[index] = 42;
+                    // bgColMap[index] = kbGreen;
                     if (strcmp(pixelList[index], " ")){
                         break;
                     }
@@ -198,19 +257,19 @@ int gameLoop(){
                     otherSet(pointer.x, pointer.y, catchCol, colorMap);
                     underUni = catchUni;
                     catchUni = 0;
-                    pointerCol = 42;
+                    pointerCol = kbGreen;
                     catchCol = 0;
                 }
             } else {
                 if (strcmp(pixelList[pointer.x + pointer.y * width], " ")){
                     catchUni = pixelList[pointer.x + pointer.y * width];
-                    pointerCol = 43;
+                    pointerCol = kbYellow;
                     underUni = " ";
                     catchCol = colorMap[pointer.x + pointer.y * width];
                     origin.x = pointer.x;
                     origin.y = pointer.y;
                     CatchUniTeam = 1;
-                    if (colorMap[pointer.x + pointer.y * width] == 36)
+                    if (colorMap[pointer.x + pointer.y * width] == kfCyan)
                         CatchUniTeam = 0;
                 }
             }
