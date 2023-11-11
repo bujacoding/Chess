@@ -31,14 +31,8 @@ struct Vector
   int y = 0;
 };
 
-typedef struct{
-    int side; // 0(white) or 1(black)
-    int type; // Pawn, Bishop, kNight, Rook, Queen, King
-    const char* emoji;
-} Unit;
-
-int kWhite = 0;
-int kBlack = 1;
+int kWhiteTeam = 0;
+int kBlackTeam = 1;
 
 int kPawn = 1;
 int kBishop = 2;
@@ -53,20 +47,29 @@ int kKing = 6;
     // set(8, 1, "♜"); set(8, 2, "♞"); set(8, 3, "♝"); set(8, 4, "♛"); set(8, 5, "♚"); set(8, 6, "♝"); set(8, 7, "♞"); set(8, 8, "♜");
     // set(7, 1, "♟"); set(7, 2, "♟"); set(7, 3, "♟"); set(7, 4, "♟"); set(7, 5, "♟"); set(7, 6, "♟"); set(7, 7, "♟"); set(7, 8, "♟");
 
+typedef struct{
+    int side; // 0(white) or 1(black)
+    int type; // Pawn, Bishop, kNight, Rook, Queen, King
+    const char* emoji;
 
-Unit whitePawn = {kWhite, kPawn, "♟"};
-Unit whiteBishop = {kWhite, kBishop, "♝"};
-Unit whiteKnight = {kWhite, kKnight, "♞"};
-Unit whiteRook = {kWhite, kRook, "♜"};
-Unit whiteQueen = {kWhite, kQueen, "♛"};
-Unit whiteKing = {kWhite, kKing, "♚"};
+    int getTeamColor() {
+        return side == kWhiteTeam ? kfCyan : kfMagenta;
+    }
+} Unit;
 
-Unit blackPawn = {kBlack, kPawn, "♙"};
-Unit blackBishop = {kBlack, kBishop, "♗"};
-Unit blackKnight = {kBlack, kKnight, "♘"};
-Unit blackRook = {kBlack, kRook, "♖"};
-Unit blackQueen = {kBlack, kQueen, "♕"};
-Unit blackKing = {kBlack, kKing, "♔"};
+Unit whitePawn = {kWhiteTeam, kPawn, "♟"};
+Unit whiteBishop = {kWhiteTeam, kBishop, "♝"};
+Unit whiteKnight = {kWhiteTeam, kKnight, "♞"};
+Unit whiteRook = {kWhiteTeam, kRook, "♜"};
+Unit whiteQueen = {kWhiteTeam, kQueen, "♛"};
+Unit whiteKing = {kWhiteTeam, kKing, "♚"};
+
+Unit blackPawn = {kBlackTeam, kPawn, "♙"};
+Unit blackBishop = {kBlackTeam, kBishop, "♗"};
+Unit blackKnight = {kBlackTeam, kKnight, "♘"};
+Unit blackRook = {kBlackTeam, kRook, "♖"};
+Unit blackQueen = {kBlackTeam, kQueen, "♕"};
+Unit blackKing = {kBlackTeam, kKing, "♔"};
 
 Unit* map[8*8] = {
 &whiteRook, &whitePawn, null, null, null, null, &blackPawn, &blackRook,
@@ -97,9 +100,8 @@ Unit* getUnitFromBoard(int x, int y) {
 bool renderUnit(int x, int y, int bgColor) {
     Unit* pUnit = getUnitFromBoard(x, y);
     if (pUnit == null) return false;
-
-    const char* emoji = pUnit->emoji;
-    printf("\x1b[%dm%s\x1b[0m", bgColor, emoji);
+    
+    printf("\x1b[%d;%dm%s\x1b[0m", pUnit->getTeamColor(), bgColor, pUnit->emoji);
     return true;
 }
 
