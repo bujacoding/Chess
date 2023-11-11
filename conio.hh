@@ -321,13 +321,13 @@ public:
     return getch_echo(true);
   }
 
-  int wherexy(int &x, int &y)
+  void wherexy(int &x, int &y)
   {
     printf("\033[6n");
     if (getch() != '\x1B')
-      return 0;
+      return;
     if (getch() != '\x5B')
-      return 0;
+      return;
     int in;
     int ly = 0;
     while ((in = getch()) != ';')
@@ -383,18 +383,20 @@ public:
 
   int cputs(const char *str)
   {
-    printf(str);
+    printf("%s", str);
     return 0;
   }
 
-  char *getpass(const char *prompt)
-  {
-    // implementada en unistd.h
-  }
+  // char *getpass(const char *prompt)
+  // {
+  //   // implementada en unistd.h
+  //   return 0;
+  // }
 
-  int gettext(int l, int t, int r, int b, void *destination)
-  {
-  }
+  // int gettext(int l, int t, int r, int b, void *destination)
+  // {
+  //   return 0;
+  // }
 
 } ___CONIO_H;
 

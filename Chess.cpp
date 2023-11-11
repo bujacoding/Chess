@@ -40,7 +40,7 @@ int canMove(struct Vector v, int dx, int dy)
 }
 
 int getBackgroundColor(int isDark, int isBorder) 
-{   
+{ 
     if (isBorder) {
         return kbRed;
     }
