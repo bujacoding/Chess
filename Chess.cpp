@@ -14,11 +14,14 @@ const int P = 112;
 const int O = 111;
 const int SPACE = 32;
 
-const int width = 10;
-const int height = 10;
-char* pixelList[width * height];
-int bgColMap[width * height];
-int colorMap[width * height];
+const int kBoardSize = 10;
+const int kFieldSize = 8;
+
+char* pixelList[kBoardSize * kBoardSize];
+int bgColMap[kBoardSize * kBoardSize];
+int colorMap[kBoardSize * kBoardSize];
+
+
 
 #define null 0
 
@@ -76,13 +79,24 @@ Unit* map[8*8] = {
 &whiteRook, &whitePawn, null, null, null, null, &blackPawn, &blackRook
 };
 
-// void render() {
-//     for (int y=0; y<height; y++) {
-//         for (int x=0; x<width; x++) {
-//             map
-//         }
-//     }
-// }
+void render() {
+    for (int y=0; y<kBoardSize; y++) {
+        
+        for (int x=0; x<kBoardSize; x++) {
+            bool isBorder = x == 0 || y == 0 || x == kBoardSize-1 || y == kBoardSize-1;
+
+            if (isBorder) {
+                printf("\x1b[%dm%s\x1b[0m", kbRed, " ");
+                continue;
+            }
+
+            Unit* pUnit = map[(y - 1) * kFieldSize + (x - 1) ];
+            const char* emoji = pUnit != null ? pUnit->emoji : " ";
+            printf("\x1b[%dm%s\x1b[0m", kbRed, emoji);
+        }
+        printf("\n");
+    }
+}
 
 int IsGame = 1;
 int delay = 16;
@@ -95,7 +109,7 @@ int canMove(struct Vector v, int dx, int dy)
     int x = dx + v.x;
     int y = dy + v.y;
 
-    return x != 0 && y != 0 && x != width - 1 && y != height - 1;
+    return x != 0 && y != 0 && x != kBoardSize - 1 && y != kBoardSize - 1;
 }
 
 int getBackgroundColor(int isDark, int isBorder) 
@@ -111,11 +125,11 @@ void initialize() {
     pointer.y = 1;
     // memset(pixelList, " ", sizeof(pixelList) + sizeof(pixelList[0]));
 
-    for (int i = 0; i < width * height; i++){
-        int x = i % width;
-        int y = i / width;
-        int isDark = (i + i / width) % 2 == 0;
-        int isBorder = x == 0 || x == width - 1 || y == 0 || y == height - 1;
+    for (int i = 0; i < kBoardSize * kBoardSize; i++){
+        int x = i % kBoardSize;
+        int y = i / kBoardSize;
+        int isDark = (i + i / kBoardSize) % 2 == 0;
+        int isBorder = x == 0 || x == kBoardSize - 1 || y == 0 || y == kBoardSize - 1;
 
         bgColMap[i] = getBackgroundColor(isDark, isBorder);
 
@@ -130,9 +144,9 @@ void buildUnits()
     set(1, 1, "♖"); 
     set(1, 2, "♘"); set(1, 3, "♗"); set(1, 4, "♕"); set(1, 5, "♔"); set(1, 6, "♗"); set(1, 7, "♘"); set(1, 8, "♖");
     set(2, 1, "♙"); set(2, 2, "♙"); set(2, 3, "♙"); set(2, 4, "♙"); set(2, 5, "♙"); set(2, 6, "♙"); set(2, 7, "♙"); set(2, 8, "♙");
-    for (int i = 0; i < width * height; i++){
+    for (int i = 0; i < kBoardSize * kBoardSize; i++){
         if (pixelList[i] != " " && pixelList[i] != "|" && pixelList[i] != "_"){
-            otherSet(i % width, i / width, 36, colorMap);
+            otherSet(i % kBoardSize, i / kBoardSize, 36, colorMap);
         }
     }
     set(8, 1, "♜"); set(8, 2, "♞"); set(8, 3, "♝"); set(8, 4, "♛"); set(8, 5, "♚"); set(8, 6, "♝"); set(8, 7, "♞"); set(8, 8, "♜");
@@ -170,7 +184,7 @@ int gameLoop(){
             pointer.y--;
         
 
-        underUni = pixelList[pointer.x + pointer.y * width];
+        underUni = pixelList[pointer.x + pointer.y * kBoardSize];
         if (key == SPACE){
             if (catchUni){
                 int King = (!strcmp(catchUni, "♔") || !strcmp(catchUni, "♚")); // all / 2 +28
@@ -261,23 +275,23 @@ int gameLoop(){
                     catchCol = 0;
                 }
             } else {
-                if (strcmp(pixelList[pointer.x + pointer.y * width], " ")){
-                    catchUni = pixelList[pointer.x + pointer.y * width];
+                if (strcmp(pixelList[pointer.x + pointer.y * kBoardSize], " ")){
+                    catchUni = pixelList[pointer.x + pointer.y * kBoardSize];
                     pointerCol = kbYellow;
                     underUni = " ";
-                    catchCol = colorMap[pointer.x + pointer.y * width];
+                    catchCol = colorMap[pointer.x + pointer.y * kBoardSize];
                     origin.x = pointer.x;
                     origin.y = pointer.y;
                     CatchUniTeam = 1;
-                    if (colorMap[pointer.x + pointer.y * width] == kfCyan)
+                    if (colorMap[pointer.x + pointer.y * kBoardSize] == kfCyan)
                         CatchUniTeam = 0;
                 }
             }
         }
         
 
-        underCol = bgColMap[pointer.x + pointer.y * width];
-        underTCol = colorMap[pointer.x + pointer.y * width];
+        underCol = bgColMap[pointer.x + pointer.y * kBoardSize];
+        underTCol = colorMap[pointer.x + pointer.y * kBoardSize];
         otherSet(pointer.x, pointer.y, catchCol, colorMap);
         otherSet(pointer.x, pointer.y, pointerCol, bgColMap);
         if (catchUni){
@@ -285,7 +299,7 @@ int gameLoop(){
         }
 
         // display
-        printf("%d\n", pixelList[pointer.x + pointer.y * width]);
+        printf("%d\n", pixelList[pointer.x + pointer.y * kBoardSize]);
         printf("%d, %d\n" ,pointer.x, pointer.y);
         printf("%d\n", " ");
 
@@ -299,21 +313,21 @@ int gameLoop(){
 }
 
 void draw(){
-    for (int i = 0; i < width * height; i++){
+    for (int i = 0; i < kBoardSize * kBoardSize; i++){
         printf("\x1b[%d;%dm%s\x1b[0m", colorMap[i], bgColMap[i], pixelList[i]);
-        if ((i + 1) % width == 0)
+        if ((i + 1) % kBoardSize == 0)
             printf("\n");
     }
 }
 
 void set(int x, int y, char* var)
 {
-    pixelList[x + width * y] = var;
+    pixelList[x + kBoardSize * y] = var;
 }
 
 void otherSet(int x, int y, int var, int *list)
 {
-    list[x + width * y] = var;
+    list[x + kBoardSize * y] = var;
 }
 
 int getKeyInput()
@@ -331,11 +345,15 @@ void waitMs(int milliseconds)
 
 int indexOf(int x, int y)
 {
-    return y * width + x;
+    return y * kBoardSize + x;
 }
 
 int main()
 {
+    render();
+
+    return 0;
+
     initialize();
 
 
