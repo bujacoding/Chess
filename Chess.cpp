@@ -79,20 +79,44 @@ Unit* map[8*8] = {
 &whiteRook, &whitePawn, null, null, null, null, &blackPawn, &blackRook
 };
 
+bool renderBorder(int x, int y) {
+    bool isBorder = x == 0 || y == 0 || x == kBoardSize-1 || y == kBoardSize-1;
+
+    if (!isBorder) {
+        return false;
+    }
+        
+    printf("\x1b[%dm%s\x1b[0m", kbRed, " ");
+    return true;
+}
+
+Unit* getUnitFromBoard(int x, int y) {
+    return map[(y - 1) * kFieldSize + (x - 1)];
+}
+
+bool renderUnit(int x, int y) {
+    Unit* pUnit = getUnitFromBoard(x, y);
+    if (pUnit == null) return false;
+
+    const char* emoji = pUnit != null ? pUnit->emoji : " ";
+    printf("\x1b[%dm%s\x1b[0m", kbRed, emoji);
+    return true;
+}
+
+bool isEmpty(int x, int y) {
+    return getUnitFromBoard(x, y) == null;
+}
+
+void renderSpace(int x, int y) {
+    printf("\x1b[%dm%s\x1b[0m", kbRed, " ");
+}
+
 void render() {
     for (int y=0; y<kBoardSize; y++) {
-        
         for (int x=0; x<kBoardSize; x++) {
-            bool isBorder = x == 0 || y == 0 || x == kBoardSize-1 || y == kBoardSize-1;
-
-            if (isBorder) {
-                printf("\x1b[%dm%s\x1b[0m", kbRed, " ");
-                continue;
-            }
-
-            Unit* pUnit = map[(y - 1) * kFieldSize + (x - 1) ];
-            const char* emoji = pUnit != null ? pUnit->emoji : " ";
-            printf("\x1b[%dm%s\x1b[0m", kbRed, emoji);
+            if (renderBorder(x, y)) continue;
+            if (renderUnit(x, y)) continue;
+            renderSpace(x, y);
         }
         printf("\n");
     }
