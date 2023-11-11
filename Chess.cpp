@@ -1,6 +1,6 @@
 #include "conio.hh"
 #include <stdlib.h>
-#include <cstring>
+#include <string.h>
 #include "Chess.h"
 
 // #define A 97
@@ -25,7 +25,7 @@ struct Vector
   int y = 0;
 };
 int IsGame = 1;
-int delay = 70;
+int delay = 16;
 struct Vector pointer;
 struct Vector origin;
 
@@ -113,39 +113,84 @@ int gameLoop(){
         underUni = pixelList[pointer.x + pointer.y * width];
         if (key == SPACE){
             if (catchUni){
-                int King = (catchUni == "♔" || catchUni == "♚"); // all / 2 +28
-                int Queen = (catchUni == "♕" || catchUni == "♛");
-                int Bishop = (catchUni == "♗" || catchUni == "♝");
-                int Knight = (catchUni == "♘" || catchUni == "♞");
-                int Rook = (catchUni == "♖" || catchUni == "♜");
-                int Pawn = (catchUni == "♙" || catchUni == "♟");
+                int King = (!strcmp(catchUni, "♔") || !strcmp(catchUni, "♚")); // all / 2 +28
+                int Queen = (!strcmp(catchUni, "♕") || !strcmp(catchUni, "♛"));
+                int Bishop = (!strcmp(catchUni, "♗") || !strcmp(catchUni, "♝"));
+                int Knight = (!strcmp(catchUni, "♘") || !strcmp(catchUni, "♞"));
+                int Rook = (!strcmp(catchUni, "♖") || !strcmp(catchUni, "♜"));
+                int Pawn = (!strcmp(catchUni, "♙") || !strcmp(catchUni, "♟"));
 
                 int dx = origin.x - pointer.x;
                 int dy = origin.y - pointer.y;
+                int adxbs = abs(dx);
+                int adybs = abs(dy);
 
                 int isReticle = (origin.x == pointer.x || origin.y == pointer.y);
-                int isDiagonal = (abs(dx) == abs(dy));
+                int isDiagonal = (adxbs == adybs);
+
+                int moveDistance = (adxbs > adybs) * adxbs + (adxbs < adybs) * adybs + (adxbs == adybs) * adxbs;
+
+                float inclination_x = 0;
+                float inclination_y = 0;
+                
+                if (adxbs < adybs){
+                    if (dx != 0)
+                        inclination_x = (float)dx / (float)adybs;
+                    if (dy != 0)
+                        inclination_y = dy / adybs;
+                } else{
+                    if (dx != 0)
+                        inclination_x = dx / adxbs;
+                    if (dy != 0)
+                        inclination_y = (float)dy / (float)adxbs;
+                }
+
+                int i = 1;
+                for (;i<moveDistance; i++){
+                    int index = indexOf(pointer.x + (int)((float)i * inclination_x), pointer.y + (int)((float)i * inclination_y));
+                    bgColMap[index] = 42;
+                    if (strcmp(pixelList[index], " ")){
+                        break;
+                    }
+                }
+                
+                int cancollide = (i != moveDistance); //Knight와 같이 기울기가 1이하가 돼는 움직임은 충돌 검사를 두번.
+                
+                // if (!cancollide) {
+                //     for (;i<moveDistance; i++){
+                //         if (strcmp(pixelList[indexOf(pointer.x + (int)((float)i * inclination_x), pointer.y + (int)((float)i * inclination_y))], " ")){
+                            
+                //             break;
+                //         }
+                //     }               
+                // }
 
                 int pass = 0;
+                // printf("x, y : %f, %f, %d, %d, cancollide : %d, %d\n", inclination_x, inclination_y, dx, dy, cancollide, moveDistance);
+                // return 0;
+
                 if (King) {
-                    if ((isReticle ^ isDiagonal) && (abs(dx) == 1 || abs(dy) == 1))
+                    if ((isReticle || isDiagonal) && (adxbs == 1 || adybs == 1)) // 터치무브 규칙 쓰려면 (isReticle 과 isDiagonal 사이에) ^ 추가. 없에려면 || 추가
                         pass = 1;
                 } else if (Queen) {
-                    if (isReticle ^ isDiagonal)
+                    if ((isReticle || isDiagonal) && !cancollide) // 터치무브 규칙 쓰려면 (isReticle 과 isDiagonal 사이에) ^ 추가. 없에려면 || 추가
                         pass = 1;
                 } else if (Bishop) {
-                    if (isDiagonal && dx != 0)
+                    if (isDiagonal && !cancollide) // 터치무브 규칙 쓰려면 && dx != 0 추가 또는 !isReticle. 규칙을 없에려면 isDiagonal만 
                         pass = 1;
                 } else if (Knight) {
-                    if ((abs(dx) == 2 && abs(dy) == 1) || (abs(dx) == 1 && abs(dy) == 2))
+                    if (!cancollide && ((adxbs == 2 && adybs == 1) || (adxbs == 1 && adybs == 2)))
                         pass = 1;
                 } else if (Rook) {
-                    if (isReticle && !isDiagonal)
+                    if (isReticle && !cancollide) // 터치무브 규칙 쓰려면 && dx != 0 추가 또는 && !isDiagonal. 규칙을 없에려면 isDiagonal만 
                         pass = 1;
                 } else if (Pawn) {
-                    if ((((CatchUniTeam * 2 -1) * ((origin.x == 2 || origin.x == 7) +1) == dx || CatchUniTeam * 2 -1 == dx) && abs(dy) == (underUni != " ")) || dx == 0 && dy == 0)
+                    if (!cancollide && ((((CatchUniTeam * 2 -1) * ((origin.x == 2 || origin.x == 7) +1) == dx || CatchUniTeam * 2 -1 == dx) && adybs == (underUni != " ")) || dx == 0 && dy == 0))
                         pass = 1;
                 }
+
+                if (moveDistance == 0) // 전체 터치무브 규칙 적용 개별적용(X)
+                    pass = 1;
 
                 if (pass) {
                     set(pointer.x, pointer.y, catchUni);
@@ -156,7 +201,7 @@ int gameLoop(){
                     catchCol = 0;
                 }
             } else {
-                if (pixelList[pointer.x + pointer.y * width] != " "){
+                if (strcmp(pixelList[pointer.x + pointer.y * width], " ")){
                     catchUni = pixelList[pointer.x + pointer.y * width];
                     pointerCol = 43;
                     underUni = " ";
@@ -182,6 +227,7 @@ int gameLoop(){
         // display
         printf("%d\n", pixelList[pointer.x + pointer.y * width]);
         printf("%d, %d\n" ,pointer.x, pointer.y);
+        printf("%d\n", " ");
 
         draw();
         printf("\n\n");
