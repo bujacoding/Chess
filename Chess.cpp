@@ -94,12 +94,12 @@ Unit* getUnitFromBoard(int x, int y) {
     return map[(y - 1) * kFieldSize + (x - 1)];
 }
 
-bool renderUnit(int x, int y) {
+bool renderUnit(int x, int y, int bgColor) {
     Unit* pUnit = getUnitFromBoard(x, y);
     if (pUnit == null) return false;
 
-    const char* emoji = pUnit != null ? pUnit->emoji : " ";
-    printf("\x1b[%dm%s\x1b[0m", kbRed, emoji);
+    const char* emoji = pUnit->emoji;
+    printf("\x1b[%dm%s\x1b[0m", bgColor, emoji);
     return true;
 }
 
@@ -107,16 +107,17 @@ bool isEmpty(int x, int y) {
     return getUnitFromBoard(x, y) == null;
 }
 
-void renderSpace(int x, int y) {
-    printf("\x1b[%dm%s\x1b[0m", kbRed, " ");
+void renderSpace(int x, int y, int bgColor) {
+    printf("\x1b[%dm%s\x1b[0m", bgColor, " ");
 }
 
 void render() {
     for (int y=0; y<kBoardSize; y++) {
         for (int x=0; x<kBoardSize; x++) {
             if (renderBorder(x, y)) continue;
-            if (renderUnit(x, y)) continue;
-            renderSpace(x, y);
+            int bgColor = ((x+y)%2) ? kbWhite : kbBlack;
+            if (renderUnit(x, y, bgColor)) continue;
+            renderSpace(x, y, bgColor);
         }
         printf("\n");
     }
