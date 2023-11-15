@@ -115,7 +115,7 @@ void render() {
     }
 }
 
-int delay = 16;
+int delay = 1000 * 1 / 25;
 
 int getKeyInput()
 {
@@ -131,9 +131,23 @@ void waitMs(int milliseconds)
 }
 
 
-int main()
-{
-    render();
+int game(){
+
+
+    do{
+        system("clear");
+
+        render();
+
+        waitMs(delay);
+    }while (1);
+
 
     return 0;
+}
+
+
+int main()
+{
+    return game();
 }
