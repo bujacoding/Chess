@@ -173,19 +173,19 @@ int updateKey() {
 
     switch (key) {
         case A:
-            cursor.x --;
+            cursor.x -= cursor.x-1 != -1 && cursor.x-1 != kFieldSize;
             cursorTime = (getTimeMs() % 1000) - 600;
             break;
         case D:
-            cursor.x ++;
+            cursor.x += cursor.x+1 != -1 && cursor.x+1 != kFieldSize;
             cursorTime = (getTimeMs() % 1000) - 600;
             break;
         case W:
-            cursor.y --;
+            cursor.y -= cursor.y-1 != -1 && cursor.y-1 != kFieldSize;
             cursorTime = (getTimeMs() % 1000) - 600;
             break;
         case S:
-            cursor.y ++;
+            cursor.y += cursor.y+1 != -1 && cursor.y+1 != kFieldSize;
             cursorTime = (getTimeMs() % 1000) - 600;
             break;
     }
