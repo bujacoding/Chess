@@ -102,10 +102,14 @@ void renderSpace(int x, int y, int bgColor) {
     printf("\x1b[%dm%s\x1b[0m", bgColor, " ");
 }
 
+int getBgColor(int x, int y) {
+    return !((x/kBorderDist+y/kBorderDist)%2) ? kbGreen : kbCyan;
+}
+
 void render() {
     for (int y=0; y<kBoardSize; y++) {
         for (int x=0; x<kBoardSize; x++) {
-            int bgColor = !((x/kBorderDist+y/kBorderDist)%2) ? kbGreen : kbCyan;
+            int bgColor = getBgColor(x,y);
             if (renderBorder(x, y, bgColor)) continue;
             bgColor = ((x+y)%2) ? kbWhite : kbBlack;
             if (renderUnit(x, y, bgColor)) continue;
