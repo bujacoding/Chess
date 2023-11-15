@@ -18,18 +18,20 @@ const int kBoardSize = 10;
 const int kFieldSize = 8;
 const int kBoderDist = 2;
 
-char* pixelList[kBoardSize * kBoardSize];
+const char* pixelList[kBoardSize * kBoardSize];
 int bgColMap[kBoardSize * kBoardSize];
 int colorMap[kBoardSize * kBoardSize];
 
+
+void set(int x, int y, const char* var);
 
 
 #define null 0
 
 struct Vector
 {
-  int x = 0;
-  int y = 0;
+  int x;
+  int y;
 };
 
 int kWhiteTeam = 0;
@@ -48,7 +50,7 @@ int kKing = 6;
     // set(8, 1, "♜"); set(8, 2, "♞"); set(8, 3, "♝"); set(8, 4, "♛"); set(8, 5, "♚"); set(8, 6, "♝"); set(8, 7, "♞"); set(8, 8, "♜");
     // set(7, 1, "♟"); set(7, 2, "♟"); set(7, 3, "♟"); set(7, 4, "♟"); set(7, 5, "♟"); set(7, 6, "♟"); set(7, 7, "♟"); set(7, 8, "♟");
 
-typedef struct{
+typedef struct Unit{
     int side; // 0(white) or 1(black)
     int type; // Pawn, Bishop, kNight, Rook, Queen, King
     const char* emoji;
@@ -174,7 +176,7 @@ void buildUnits()
     set(1, 2, "♘"); set(1, 3, "♗"); set(1, 4, "♕"); set(1, 5, "♔"); set(1, 6, "♗"); set(1, 7, "♘"); set(1, 8, "♖");
     set(2, 1, "♙"); set(2, 2, "♙"); set(2, 3, "♙"); set(2, 4, "♙"); set(2, 5, "♙"); set(2, 6, "♙"); set(2, 7, "♙"); set(2, 8, "♙");
     for (int i = 0; i < kBoardSize * kBoardSize; i++){
-        if (pixelList[i] != " " && pixelList[i] != "|" && pixelList[i] != "_"){
+        if (strcmp(pixelList[i]," ") !=0 && strcmp(pixelList[i],"|")!=0 && strcmp(pixelList[i],"_")!=0){
             otherSet(i % kBoardSize, i / kBoardSize, 36, colorMap);
         }
     }
@@ -184,8 +186,8 @@ void buildUnits()
 
 int gameLoop(){
     int underCol = kbBlack;
-    char* underUni = "♖";
-    char* catchUni = 0;
+    const char* underUni = "♖";
+    const char* catchUni = 0;
     int pointerCol = kbGreen;
     int catchCol = 0;
     int underTCol = kfCyan;
@@ -288,7 +290,7 @@ int gameLoop(){
                     if (isReticle && !cancollide) // 터치무브 규칙 쓰려면 && dx != 0 추가 또는 && !isDiagonal. 규칙을 없에려면 isDiagonal만 
                         pass = 1;
                 } else if (Pawn) {
-                    if (!cancollide && ((((CatchUniTeam * 2 -1) * ((origin.x == 2 || origin.x == 7) +1) == dx || CatchUniTeam * 2 -1 == dx) && adybs == (underUni != " ")) || dx == 0 && dy == 0))
+                    if (!cancollide && ((((CatchUniTeam * 2 -1) * ((origin.x == 2 || origin.x == 7) +1) == dx || CatchUniTeam * 2 -1 == dx) && adybs == (strcmp(underUni, " ")!=0)) || dx == 0 && dy == 0))
                         pass = 1;
                 }
 
@@ -328,9 +330,9 @@ int gameLoop(){
         }
 
         // display
-        printf("%d\n", pixelList[pointer.x + pointer.y * kBoardSize]);
+        printf("%s\n", (pixelList[pointer.x + pointer.y * kBoardSize]));
         printf("%d, %d\n" ,pointer.x, pointer.y);
-        printf("%d\n", " ");
+        printf(" \n");
 
         draw();
         printf("\n\n");
@@ -349,7 +351,7 @@ void draw(){
     }
 }
 
-void set(int x, int y, char* var)
+void set(int x, int y, const char* var)
 {
     pixelList[x + kBoardSize * y] = var;
 }
