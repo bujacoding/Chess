@@ -143,33 +143,6 @@ int canMove(struct Vector v, int dx, int dy)
     return x != 0 && y != 0 && x != kBoardSize - 1 && y != kBoardSize - 1;
 }
 
-int getBackgroundColor(int isDark, int isBorder) 
-{ 
-    if (isBorder) {
-        return kbRed;
-    }
-    return isDark ? kbBlack : kbWhite;
-}
-
-void initialize() {
-    pointer.x = 1;
-    pointer.y = 1;
-    // memset(pixelList, " ", sizeof(pixelList) + sizeof(pixelList[0]));
-
-    for (int i = 0; i < kBoardSize * kBoardSize; i++){
-        int x = i % kBoardSize;
-        int y = i / kBoardSize;
-        int isDark = (i + i / kBoardSize) % 2 == 0;
-        int isBorder = x == 0 || x == kBoardSize - 1 || y == 0 || y == kBoardSize - 1;
-
-        bgColMap[i] = getBackgroundColor(isDark, isBorder);
-
-        colorMap[i] = kfMagenta;        
-
-        pixelList[i] = " ";
-    }
-}
-
 void buildUnits() 
 {
     set(1, 1, "♖"); 
@@ -384,10 +357,6 @@ int main()
     render();
 
     return 0;
-
-    initialize();
-
-
 
     buildUnits();
 
