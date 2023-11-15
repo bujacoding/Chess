@@ -1,5 +1,8 @@
 # Chess
 
+### TODO
+[] moving units
+
 
 # 개발 일지
 

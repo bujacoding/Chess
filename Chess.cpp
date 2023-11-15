@@ -13,9 +13,10 @@ const int quit = 81;
 const int P = 112;
 const int O = 111;
 const int SPACE = 32;
-
+ 
 const int kBoardSize = 10;
 const int kFieldSize = 8;
+const int kBoderDist = 2;
 
 char* pixelList[kBoardSize * kBoardSize];
 int bgColMap[kBoardSize * kBoardSize];
@@ -82,14 +83,14 @@ Unit* map[8*8] = {
 &whiteRook, &whitePawn, null, null, null, null, &blackPawn, &blackRook
 };
 
-bool renderBorder(int x, int y) {
+bool renderBorder(int x, int y, int bgColor) {
     bool isBorder = x == 0 || y == 0 || x == kBoardSize-1 || y == kBoardSize-1;
 
     if (!isBorder) {
         return false;
     }
         
-    printf("\x1b[%dm%s\x1b[0m", kbRed, " ");
+    printf("\x1b[%dm%s\x1b[0m", bgColor, " ");
     return true;
 }
 
@@ -116,8 +117,9 @@ void renderSpace(int x, int y, int bgColor) {
 void render() {
     for (int y=0; y<kBoardSize; y++) {
         for (int x=0; x<kBoardSize; x++) {
-            if (renderBorder(x, y)) continue;
-            int bgColor = ((x+y)%2) ? kbWhite : kbBlack;
+            int bgColor = !((x/kBoderDist+y/kBoderDist)%2) ? kbGreen : kbCyan;
+            if (renderBorder(x, y, bgColor)) continue;
+            bgColor = ((x+y)%2) ? kbWhite : kbBlack;
             if (renderUnit(x, y, bgColor)) continue;
             renderSpace(x, y, bgColor);
         }
