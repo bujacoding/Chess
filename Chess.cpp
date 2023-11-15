@@ -143,20 +143,6 @@ int canMove(struct Vector v, int dx, int dy)
     return x != 0 && y != 0 && x != kBoardSize - 1 && y != kBoardSize - 1;
 }
 
-void buildUnits() 
-{
-    set(1, 1, "♖"); 
-    set(1, 2, "♘"); set(1, 3, "♗"); set(1, 4, "♕"); set(1, 5, "♔"); set(1, 6, "♗"); set(1, 7, "♘"); set(1, 8, "♖");
-    set(2, 1, "♙"); set(2, 2, "♙"); set(2, 3, "♙"); set(2, 4, "♙"); set(2, 5, "♙"); set(2, 6, "♙"); set(2, 7, "♙"); set(2, 8, "♙");
-    for (int i = 0; i < kBoardSize * kBoardSize; i++){
-        if (strcmp(pixelList[i]," ") !=0 && strcmp(pixelList[i],"|")!=0 && strcmp(pixelList[i],"_")!=0){
-            otherSet(i % kBoardSize, i / kBoardSize, 36, colorMap);
-        }
-    }
-    set(8, 1, "♜"); set(8, 2, "♞"); set(8, 3, "♝"); set(8, 4, "♛"); set(8, 5, "♚"); set(8, 6, "♝"); set(8, 7, "♞"); set(8, 8, "♜");
-    set(7, 1, "♟"); set(7, 2, "♟"); set(7, 3, "♟"); set(7, 4, "♟"); set(7, 5, "♟"); set(7, 6, "♟"); set(7, 7, "♟"); set(7, 8, "♟");
-}
-
 int gameLoop(){
     int underCol = kbBlack;
     const char* underUni = "♖";
@@ -357,10 +343,5 @@ int main()
     render();
 
     return 0;
-
-    buildUnits();
-
-
-
     return gameLoop();
 }
