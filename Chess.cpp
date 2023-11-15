@@ -16,7 +16,7 @@ const int SPACE = 32;
  
 const int kBoardSize = 10;
 const int kFieldSize = 8;
-const int kBoderDist = 2;
+const int kBorderDist = 2;
 
 const char* pixelList[kBoardSize * kBoardSize];
 int bgColMap[kBoardSize * kBoardSize];
@@ -119,7 +119,7 @@ void renderSpace(int x, int y, int bgColor) {
 void render() {
     for (int y=0; y<kBoardSize; y++) {
         for (int x=0; x<kBoardSize; x++) {
-            int bgColor = !((x/kBoderDist+y/kBoderDist)%2) ? kbGreen : kbCyan;
+            int bgColor = !((x/kBorderDist+y/kBorderDist)%2) ? kbGreen : kbCyan;
             if (renderBorder(x, y, bgColor)) continue;
             bgColor = ((x+y)%2) ? kbWhite : kbBlack;
             if (renderUnit(x, y, bgColor)) continue;
