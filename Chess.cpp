@@ -23,6 +23,10 @@ struct Vector
 {
   int x;
   int y;
+
+    bool operator==(const struct Vector &v) const {
+		return v.x == this->x && v.y == this->y;
+	}
 };
 
 int kWhiteTeam = 0;
@@ -71,12 +75,18 @@ Unit* map[8*8] = {
 &whiteRook, &whitePawn, null, null, null, null, &blackPawn, &blackRook
 };
 
-bool renderBorder(int x, int y, int bgColor) {
+Vector cursor = {0, 0};
+int kNormalCursorColor = kbGreen;
+int kGrapCusrsorColor = kbYellow;
+
+bool renderBorder(int x, int y) {
     bool isBorder = x == 0 || y == 0 || x == kBoardSize-1 || y == kBoardSize-1;
 
     if (!isBorder) {
         return false;
     }
+
+    int bgColor = !((x/kBorderDist+y/kBorderDist)%2) ? kbGreen : kbCyan;
         
     printf("\x1b[%dm%s\x1b[0m", bgColor, " ");
     return true;
@@ -103,15 +113,23 @@ void renderSpace(int x, int y, int bgColor) {
 }
 
 int getBgColor(int x, int y) {
-    return !((x/kBorderDist+y/kBorderDist)%2) ? kbGreen : kbCyan;
+    Vector position = {x, y};
+    if (position == cursor) {
+        // if (cursor state is grab) {
+        //     return kGrapCursorColor;
+        // }
+        return kNormalCursorColor;
+    }
+
+    return ((x+y)%2) ? kbWhite : kbBlack;
 }
 
 void render() {
     for (int y=0; y<kBoardSize; y++) {
         for (int x=0; x<kBoardSize; x++) {
-            int bgColor = getBgColor(x,y);
-            if (renderBorder(x, y, bgColor)) continue;
-            bgColor = ((x+y)%2) ? kbWhite : kbBlack;
+            if (renderBorder(x, y)) continue;
+
+            int bgColor = getBgColor(x - 1,y - 1);
             if (renderUnit(x, y, bgColor)) continue;
             renderSpace(x, y, bgColor);
         }
