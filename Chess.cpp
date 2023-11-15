@@ -1,6 +1,8 @@
 #include "conio.hh"
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
+
 #include "Chess.h"
 #include "colors.h"
 
@@ -112,13 +114,23 @@ void renderSpace(int x, int y, int bgColor) {
     printf("\x1b[%dm%s\x1b[0m", bgColor, " ");
 }
 
+long getTimeMs() {
+    struct timeval t;
+    gettimeofday(&t, NULL);
+
+    return t.tv_sec * 1000 + t.tv_usec/1000;
+}
+
 int getBgColor(int x, int y) {
     Vector position = {x, y};
     if (position == cursor) {
         // if (cursor state is grab) {
         //     return kGrapCursorColor;
         // }
-        return kNormalCursorColor;
+
+        if (getTimeMs() % 1000 < 600){
+            return kNormalCursorColor;
+        }
     }
 
     return ((x+y)%2) ? kbWhite : kbBlack;
@@ -155,13 +167,13 @@ void waitMs(int milliseconds)
 
 int game(){
 
-
     do{
         system("clear");
 
         render();
 
         waitMs(delay);
+        
     }while (1);
 
 
