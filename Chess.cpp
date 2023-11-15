@@ -31,6 +31,8 @@ struct Vector
 	}
 };
 
+bool isQuit = false;
+
 int kWhiteTeam = 0;
 int kBlackTeam = 1;
 
@@ -88,7 +90,7 @@ bool renderBorder(int x, int y) {
         return false;
     }
 
-    int bgColor = !((x/kBorderDist+y/kBorderDist)%2) ? kbGreen : kbCyan;
+    int bgColor = !((x/kBorderDist+y/kBorderDist)%2) ? kbBlue : kbCyan;
         
     printf("\x1b[%dm%s\x1b[0m", bgColor, " ");
     return true;
@@ -121,6 +123,8 @@ long getTimeMs() {
     return t.tv_sec * 1000 + t.tv_usec/1000;
 }
 
+int cursorTime = 0;
+
 int getBgColor(int x, int y) {
     Vector position = {x, y};
     if (position == cursor) {
@@ -128,7 +132,7 @@ int getBgColor(int x, int y) {
         //     return kGrapCursorColor;
         // }
 
-        if (getTimeMs() % 1000 < 600){
+        if ((getTimeMs() + cursorTime) % 1000 < 600){
             return kNormalCursorColor;
         }
     }
@@ -141,7 +145,7 @@ void render() {
         for (int x=0; x<kBoardSize; x++) {
             if (renderBorder(x, y)) continue;
 
-            int bgColor = getBgColor(x - 1,y - 1);
+            int bgColor = getBgColor(x - 1, y - 1);
             if (renderUnit(x, y, bgColor)) continue;
             renderSpace(x, y, bgColor);
         }
@@ -164,17 +168,43 @@ void waitMs(int milliseconds)
     usleep(milliseconds * 1000);
 }
 
+int updateKey() {
+    int key = getKeyInput();
+
+    switch (key) {
+        case A:
+            cursor.x --;
+            cursorTime = (getTimeMs() % 1000) - 600;
+            break;
+        case D:
+            cursor.x ++;
+            cursorTime = (getTimeMs() % 1000) - 600;
+            break;
+        case W:
+            cursor.y --;
+            cursorTime = (getTimeMs() % 1000) - 600;
+            break;
+        case S:
+            cursor.y ++;
+            cursorTime = (getTimeMs() % 1000) - 600;
+            break;
+    }
+
+    return key;
+}
 
 int game(){
-
     do{
+        
+        isQuit = updateKey() == quit;
+        
         system("clear");
-
+        
         render();
 
         waitMs(delay);
         
-    }while (1);
+    } while (!isQuit);
 
 
     return 0;
