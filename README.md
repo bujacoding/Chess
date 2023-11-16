@@ -5,6 +5,13 @@
 
 
 # 개발 일지
+## 2023-11-15
+#### 정리
+- june 이 작성한 코드 OldChess 로 이동
+- border 코너 색 다르게 하기
+- .gitignore 에 Chess, OldChess 등록
+- renderCursor()
+
 ## 2023-11-11
 #### 코드 정리하며 다시 만들어 보기
 - colors.h 에 컬러 상수값 분리
