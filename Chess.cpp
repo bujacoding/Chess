@@ -19,6 +19,9 @@ const int kBoardSize = 10;
 const int kFieldSize = 8;
 const int kBorderDist = 2;
 
+const int delay = 1000 / 25; // 25 fps
+
+
 #define null 0
 
 struct Vector
@@ -82,6 +85,7 @@ Unit* map[8*8] = {
 Vector cursor = {0, 0};
 int kNormalCursorColor = kbGreen;
 int kGrapCusrsorColor = kbYellow;
+int isCursorGraping = 0;
 
 bool renderBorder(int x, int y) {
     bool isBorder = x == 0 || y == 0 || x == kBoardSize-1 || y == kBoardSize-1;
@@ -123,17 +127,21 @@ long getTimeMs() {
     return t.tv_sec * 1000 + t.tv_usec/1000;
 }
 
-int cursorTime = 0;
+int cursorTime = 10;
+int stopTime = getTimeMs();
 
 int getBgColor(int x, int y) {
     Vector position = {x, y};
     if (position == cursor) {
-        // if (cursor state is grab) {
-        //     return kGrapCursorColor;
-        // }
 
-        if ((getTimeMs() + cursorTime) % 1000 < 600){
-            return kNormalCursorColor;
+        if (cursorTime > 0){
+            cursorTime--;
+            if (cursorTime == 0){
+                stopTime = getTimeMs();
+            }
+            return isCursorGraping ? kGrapCusrsorColor : kNormalCursorColor;
+        } else if ((getTimeMs() - stopTime) % 1000 < 500){
+            return isCursorGraping ? kGrapCusrsorColor : kNormalCursorColor;
         }
     }
 
@@ -153,8 +161,6 @@ void render() {
     }
 }
 
-int delay = 1000 * 1 / 25;
-
 int getKeyInput()
 {
     if (kbhit() == 1)
@@ -168,25 +174,31 @@ void waitMs(int milliseconds)
     usleep(milliseconds * 1000);
 }
 
+void updateCursor(int dx, int dy){
+    struct Vector c = {cursor.x + dx, cursor.y + dy};
+    // cursor.x -= cursor.x + dx != -1 && cursor.x + dx != kFieldSize && cursor.y + dy != -1 && cursor.y + dy != kFieldSize;
+    if (0<=c.x && c.x<kFieldSize && 0<= c.y && c.y<kFieldSize) {
+        cursor.x = c.x;
+        cursor.y = c.y;
+    }
+    cursorTime = 20;
+}
+
 int updateKey() {
     int key = getKeyInput();
 
     switch (key) {
         case A:
-            cursor.x -= cursor.x-1 != -1 && cursor.x-1 != kFieldSize;
-            cursorTime = (getTimeMs() % 1000) - 600;
+            updateCursor(-1, 0);
             break;
         case D:
-            cursor.x += cursor.x+1 != -1 && cursor.x+1 != kFieldSize;
-            cursorTime = (getTimeMs() % 1000) - 600;
+            updateCursor(+1, 0);
             break;
         case W:
-            cursor.y -= cursor.y-1 != -1 && cursor.y-1 != kFieldSize;
-            cursorTime = (getTimeMs() % 1000) - 600;
+            updateCursor(0, -1);
             break;
         case S:
-            cursor.y += cursor.y+1 != -1 && cursor.y+1 != kFieldSize;
-            cursorTime = (getTimeMs() % 1000) - 600;
+            updateCursor(0, 1);
             break;
     }
 
@@ -195,8 +207,10 @@ int updateKey() {
 
 int game(){
     do{
-        
-        isQuit = updateKey() == quit;
+        if (updateKey() == quit){
+            isQuit = true;
+            continue;
+        }   
         
         system("clear");
         
